@@ -20,13 +20,13 @@ class SchemaListView(mixins.LoginRequiredMixin, generic.ListView):
         return models.Schema.objects.filter(creator=self.request.user)
 
 
-class SchemaDeleteView(generic.DeleteView):
+class SchemaDeleteView(mixins.LoginRequiredMixin, generic.DeleteView):
     model = models.Schema
     template_name = 'csv_maker/schema_delete.html'
     success_url = reverse_lazy('csv_maker:schema-list')
 
 
-class SchemaCreateView(generic.CreateView):
+class SchemaCreateView(mixins.LoginRequiredMixin, generic.CreateView):
     template_name = 'csv_maker/schema_create.html'
     form_class = forms.SchemaModelForm
     success_url = reverse_lazy('csv_maker:schema-list')
@@ -56,7 +56,7 @@ class SchemaCreateView(generic.CreateView):
         return redirect('csv_maker:schema-list')
 
 
-class SchemaUpdateView(generic.UpdateView):
+class SchemaUpdateView(mixins.LoginRequiredMixin, generic.UpdateView):
     template_name = 'csv_maker/schema_update.html'
     form_class = forms.SchemaModelForm
     success_url = reverse_lazy('csv_maker:schema-list')
@@ -91,7 +91,7 @@ class SchemaUpdateView(generic.UpdateView):
         return redirect('csv_maker:schema-list')
 
 
-class DatasetListView(generic.ListView):
+class DatasetListView(mixins.LoginRequiredMixin, generic.ListView):
     model = models.Dataset
     template_name = 'csv_maker/schema_datasets.html'
     context_object_name = 'datasets'
