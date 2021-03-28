@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="row mx-auto mt-4">
+        <div class="col-md-8">
+            <div class="row">
+                <div class="col-md-6">
+                    <h2>Data schemas</h2>
+                </div>
+                <div class="col-md-6 text-right">
+                    <button type="submit" class="btn btn-success " onclick="location.href='{% url 'csv_maker:schema-create' %}'">New Schema</button>
+                </div>
+            </div>
+
+            <table class="table table-bordered mt-4">
+                <thead>
+                <tr class="bg-primary bg-lighten-5">
+                    <th scope="col">#</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Modified</th>
+                    <th scope="col">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for schema in schemas %}
+                    <tr>
+                        <th scope="row">{{ schema.id }}</th>
+                        <td>{{ schema.name }}</td>
+                        <td>{{ schema.updated_at|date }}</td>
+                        <td>
+                            <a href="{% url 'csv_maker:schema-update' schema.id %}">Edit</a>
+                            <a href="{% url 'csv_maker:schema-delete' schema.id %}">Delete</a>
+
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

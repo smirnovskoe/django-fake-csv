@@ -1,0 +1,122 @@
+{% extends 'base.html' %}4
+
+{% block javascript %}
+    <script>
+        $('.btn').on('click', function () {
+
+            const row_number = document.getElementById("row_number").value;
+
+            if (/^-?\d+$/.test(row_number)) {
+                console.log(row_number)
+                startTasks(row_number)
+            }
+        });
+
+        function startTasks(row_number) {
+            console.log('send')
+            $.ajax({
+                url: '/tasks/' + row_number.toString(),
+                method: 'GET',
+            })
+                .done((res) => {
+                    for (prop in res.tasks_id) {
+                        initTask(res.tasks_id[prop])
+                        getStatus(res.tasks_id[prop]);
+                    }
+                })
+                .fail((err) => {
+                    console.log(err);
+                });
+        }
+
+        function initTask(taskID) {
+            const html = `
+                      <tr id="${taskID}">
+                        <td>${taskID}</td>
+                        <td>${new Date().toISOString().slice(0, 10)}</td>
+                        <td>
+<span id="${taskID}-status" class="badge badge-pill badge-warning">PENDING</span></td>
+                        <td><a id="${taskID}-url" href="">No data</a></td>
+                      </tr>`
+            $('#tasks').prepend(html);
+        }
+
+
+        function getStatus(taskID) {
+            $.ajax({
+                url: `/task_status/${taskID}/`,
+                method: 'GET'
+            })
+                .done((res) => {
+                    console.log(res)
+
+                    const taskStatus = res.task_status;
+
+                    if (taskStatus === 'SUCCESS' || taskStatus === 'FAILURE') {
+
+                        const t_id = res.task_id.toString()
+
+                        const statusBadge = document.getElementById(t_id + '-status')
+                        statusBadge.textContent = 'SUCCESS';
+                        statusBadge.className = 'badge badge-primary'
+                        document.getElementById(t_id + '-url').textContent = 'Download';
+                        document.getElementById(t_id + '-url').setAttribute('href', res.task_result);
+                        return false;
+                    }
+
+                    setTimeout(function () {
+                        getStatus(res.task_id);
+                    }, 1000);
+                })
+                .fail((err) => {
+                    console.log(err)
+                });
+        }
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="row mx-auto mt-4">
+        <div class="col-md-8">
+            <div class="row">
+                <div class="col-md-6">
+                    <h2>Data sets</h2>
+
+                </div>
+                <div class="col-md-6 text-right">
+                    <div class="row">
+
+
+                        <div class="input-group input-group-sm mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="inputGroup-sizing-sm">Row count</span>
+                            </div>
+                            <input id='row_number' type="text" class="form-control" aria-label="Sizing example input"
+                                   aria-describedby="inputGroup-sizing-sm">
+                        </div>
+                        <button type="submit" class="btn btn-success">
+                            Generate data
+                        </button>
+                    </div>
+
+
+                </div>
+            </div>
+
+            <table class="table table-bordered mt-4">
+                <thead>
+                <tr class="bg-primary bg-lighten-5">
+                    <th scope="col">#</th>
+                    <th scope="col">Created</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Actions</th>
+                </tr>
+                </thead>
+                <tbody id="tasks">
+
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
